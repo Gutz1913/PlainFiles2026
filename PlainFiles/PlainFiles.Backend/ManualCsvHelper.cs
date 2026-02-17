@@ -1,0 +1,53 @@
+﻿namespace PlainFiles.Backend;
+
+public class ManualCsvHelper
+{
+    public void WriteCsv(string path, List<string[]> records)
+    {
+        if (string.IsNullOrWhiteSpace(path))
+            throw new ArgumentException("Path cannot be null or empty.", nameof(path));
+
+        if (records == null)
+            throw new ArgumentNullException(nameof(records), "Records cannot be null.");
+
+        EnsureFileAndDirectory(path);
+
+        using var sw = new StreamWriter(path);
+        foreach (var record in records)
+        {
+            var line = string.Join(",", record);
+            sw.WriteLine(line);
+        }
+    }
+
+    public List<string[]> ReadCsv(string path)
+    {
+        if (string.IsNullOrWhiteSpace(path))
+            throw new ArgumentException("Path cannot be null or empty.", nameof(path));
+
+        EnsureFileAndDirectory(path);
+
+        var result = new List<string[]>();
+        using var sr = new StreamReader(path);
+        string? line;
+        while ((line = sr.ReadLine()) != null)
+        {
+            var fields = line.Split(',');
+            result.Add(fields);
+        }
+        return result;
+    }
+
+    private static void EnsureFileAndDirectory(string path)
+    {
+        var directory = Path.GetDirectoryName(path);
+        if (!string.IsNullOrEmpty(directory) && !Directory.Exists(directory))
+            Directory.CreateDirectory(directory);
+
+        // Create an empty file and close it immediately
+        if (!File.Exists(path))
+        {
+            using var fs = File.Create(path);
+        }
+    }
+}
