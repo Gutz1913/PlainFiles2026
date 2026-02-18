@@ -13,5 +13,5 @@ textFile.WriteAllLines(lines.ToArray());
 var linesReaded = textFile.ReadAllLines();
 foreach (var line in linesReaded)
 {
-    Console.WriteLine(lines);
+    Console.WriteLine(line);
 }
