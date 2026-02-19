@@ -1,9 +1,4 @@
-﻿using CsvHelper;
-using PlainFiles.Backend;
-using System.Collections.Generic;
-using System.ComponentModel.Design;
-using static System.Net.Mime.MediaTypeNames;
-using static System.Runtime.InteropServices.JavaScript.JSType;
+﻿using PlainFiles.Backend;
 
 Console.Write("Enter the list name: ");
 var listName = Console.ReadLine();
