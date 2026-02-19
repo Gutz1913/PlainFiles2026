@@ -1,5 +1,9 @@
-﻿using PlainFiles.Backend;
+﻿using CsvHelper;
+using PlainFiles.Backend;
+using System.Collections.Generic;
 using System.ComponentModel.Design;
+using static System.Net.Mime.MediaTypeNames;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 Console.Write("Enter the list name: ");
 var listName = Console.ReadLine();
@@ -13,32 +17,24 @@ do
     switch (opt)
     {
         case "1":
-            Console.Write("Enter name: ");
-            var name = Console.ReadLine() ?? string.Empty;
-            Console.Write("Enter lastName: ");
-            var lastName = Console.ReadLine() ?? string.Empty;
-            Console.Write("Enter age: ");
-            var age = Console.ReadLine() ?? string.Empty;
-            people.Add(new[] { name, lastName, age });
-            Console.WriteLine("Person added.");
+            AddPerson();
             break;
 
         case "2":
-            Console.WriteLine($"List of {listName}");
-            Console.WriteLine("Showing list of people: ");
-            Console.WriteLine(" --------------------------------------------------------");
-            Console.WriteLine("|\tName\t|\tLast Name\t|\tAge\t|");
-            Console.WriteLine(" --------------------------------------------------------");
-            foreach (var person in people)
-            {
-                Console.WriteLine($"|   {person[0]}\t|\t{person[1]}\t|\t{person[2]}\t|");
-                Console.WriteLine(" --------------------------------------------------------");
-            }
+            ShowList();
             break;
 
         case "3":
             saveFile(people, listName);
             Console.WriteLine("List saved.");
+            break;
+
+        case "4":
+            DeletePerson();
+            break;
+
+        case "5":
+            SortData();
             break;
 
         case "0":
@@ -53,11 +49,130 @@ do
 while (opt != "0");
 saveFile(people, listName);
 
+void AddPerson()
+{
+    Console.Write("Enter name: ");
+    var name = Console.ReadLine() ?? string.Empty;
+    Console.Write("Enter lastName: ");
+    var lastName = Console.ReadLine() ?? string.Empty;
+    Console.Write("Enter age: ");
+    var age = Console.ReadLine() ?? string.Empty;
+    people.Add(new[] { name, lastName, age });
+    Console.WriteLine("Person added.");
+}
+
+void ShowList()
+{
+    Console.WriteLine($"List of {listName}");
+    Console.WriteLine(" --------------------------------------------------------");
+    Console.WriteLine("|\tName\t|\tLast Name\t|\tAge\t|");
+    Console.WriteLine(" --------------------------------------------------------");
+    foreach (var person in people)
+    {
+        Console.WriteLine($"|   {person[0]}\t|\t{person[1]}\t|\t{person[2]}\t|");
+        Console.WriteLine(" --------------------------------------------------------");
+    }
+}
+
+void DeletePerson()
+{
+    Console.Write("Enter name to delete: ");
+    var nameToDelete = Console.ReadLine();
+    var peopleToDelete = people
+        .Where(p => p[0].Equals(nameToDelete, StringComparison.OrdinalIgnoreCase))
+        .ToList();
+
+    if (peopleToDelete.Count == 0)
+    {
+        Console.WriteLine("No people with that name were found.");
+        return;
+    }
+
+    for (int i = 0; i < peopleToDelete.Count; i++)
+    {
+        Console.WriteLine($"ID: {i} - Names: {peopleToDelete[i][0]} {peopleToDelete[i][1]}, age: {peopleToDelete[i][2]}");
+    }
+
+    int id;
+    do
+    {
+        Console.Write("Enter the ID of the item you want to delete, or -1 to cancel.? ");
+        var idString = Console.ReadLine();
+        int.TryParse(idString, out id);
+        if (id < -1 || id > peopleToDelete.Count)
+        {
+            Console.WriteLine("Invalid ID. Please try again.");
+        }
+    } while (id < -1 || id > peopleToDelete.Count);
+
+    if (id == -1)
+    {
+        Console.WriteLine("Canceled operation.");
+        return;
+    }
+
+    var personToRemove = peopleToDelete[id];
+    people.Remove(personToRemove);
+}
+
+void SortData()
+{
+    int order;
+    do
+    {
+        Console.Write("Which field do you want to sort by? --> 0. First Name, 1. Last Name, 2. Age? ");
+        var orderString = Console.ReadLine();
+        int.TryParse(orderString, out order);
+        if (order < 0 || order > 2)
+        {
+            Console.WriteLine("Invalid order. Please try again..");
+        }
+    } while (order < 0 || order > 2);
+
+    int type;
+    do
+    {
+        Console.Write("How do you want to sort --> 0. Ascending, 1. Descending?? ");
+        var typeString = Console.ReadLine();
+        int.TryParse(typeString, out type);
+        if (type < 0 || type > 1)
+        {
+            Console.WriteLine("Invalid order. Please try again..");
+        }
+    } while (type < 0 || type > 1);
+
+    people.Sort((a, b) =>
+    {
+        int cmp;
+        if (order == 2) // Age: Compare as a number
+        {
+            bool parsedA = int.TryParse(a[2], out var ageA);
+            bool parsedB = int.TryParse(b[2], out var ageB);
+
+            //If it cannot be parsed, we treat it as - infinity so that it remains at the beginning
+            if (!parsedA) ageA = int.MinValue;
+            if (!parsedB) ageB = int.MinValue;
+
+            cmp = ageA.CompareTo(ageB);
+        }
+        else // First or Last Name: text comparison, ignoring uppercase/lowercase
+        {
+            cmp = string.Compare(a[order], b[order], StringComparison.OrdinalIgnoreCase);
+        }
+
+        return type == 0 ? cmp : -cmp; // 0 = ascending, 1 = descending
+    });
+
+    Console.WriteLine("Sorted data.");
+}
+
 string Menu()
 {
     Console.WriteLine("1. Add");
-    Console.WriteLine("2. Show");
-    Console.WriteLine("3. Save");
+    Console.WriteLine("2. Show list");
+    Console.WriteLine("3. Save file");
+    Console.WriteLine("4. Delete");
+    Console.WriteLine("5. Sort");
     Console.WriteLine("0. Exit");
     Console.Write("Choose an option: ");
     return Console.ReadLine() ?? string.Empty;
