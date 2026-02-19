@@ -108,6 +108,7 @@ void DeletePerson()
 
     var personToRemove = peopleToDelete[id];
     people.Remove(personToRemove);
+    Console.WriteLine("Person deleted");
 }
 
 void SortData()
