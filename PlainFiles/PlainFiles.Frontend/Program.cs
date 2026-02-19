@@ -91,7 +91,7 @@ void DeletePerson()
     int id;
     do
     {
-        Console.Write("Enter the ID of the item you want to delete, or -1 to cancel.? ");
+        Console.Write("Enter the ID of the item you want to delete, or -1 to cancel: ");
         var idString = Console.ReadLine();
         int.TryParse(idString, out id);
         if (id < -1 || id > peopleToDelete.Count)
