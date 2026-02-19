@@ -85,7 +85,7 @@ void DeletePerson()
 
     for (int i = 0; i < peopleToDelete.Count; i++)
     {
-        Console.WriteLine($"ID: {i} - Names: {peopleToDelete[i][0]} {peopleToDelete[i][1]}, age: {peopleToDelete[i][2]}");
+        Console.WriteLine($"ID: {i} - Name: {peopleToDelete[i][0]} {peopleToDelete[i][1]}, age: {peopleToDelete[i][2]}");
     }
 
     int id;
